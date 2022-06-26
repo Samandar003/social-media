@@ -11,7 +11,7 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     bio = models.TextField()
-    profileimg = models.ImageField(upload_to='profile_images', default='blank-profile-picture.png')
+    profileimg = models.ImageField(upload_to='profile_images', default='default.jpg')
     location = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -27,8 +27,4 @@ class Post(models.Model):
 
     def __str__(self):
         return self.user
-
-
-# class 
-
 

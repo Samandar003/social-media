@@ -1,6 +1,7 @@
+from hashlib import new
 import re
 from django.shortcuts import redirect, render
-from .models import Profile
+from .models import Post, Profile
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib import auth
@@ -13,8 +14,11 @@ from django.contrib.auth import login, logout
 
 @login_required(login_url='signin')
 def index(request):
-
-    return render(request, 'index.html')
+    user_object = User.objects.get(username=request.user.username)
+    feed_object = Profile.objects.filter(user=user_object)
+    post_object = Post.objects.filter(user=user_object)
+    context = {'post_object':post_object}
+    return render(request, 'index.html', context)
 
 
 def signup(request):
@@ -38,7 +42,7 @@ def signup(request):
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
                 new_profile.save()
-                return redirect('/')
+                return redirect('settings')
         else:
             messages.info(request, 'Password Not Matching')
             return redirect('signup')
@@ -69,6 +73,31 @@ def logoutPage(request):
 
 @login_required(login_url='signin')
 def accountSettings(request):
+    user_profile = Profile.objects.get(user=request.user)
+    if request.method == 'POST':
+        if request.FILES.get('image') == None:
+            user_profile.bio = request.POST['bio']            
+            user_profile.location = request.POST['location']
+            user_profile.save()
+            return redirect()
+        else:
+            user_profile.bio = request.POST['bio']
+            user_profile.location = request.POST['location']
+            user_profile.profileimg = request.FILES['image']
+            user_profile.save()
+        return redirect('settings')
 
-    return render(request, 'setting.html')
+    return render(request, 'setting.html', {'user_profile':user_profile})
+
+
+
+def upload(request):
+    if request.method == 'POST':
+        user = request.user.username
+        image = request.FILES['image_upload']
+        caption = request.POST['caption']
+        new_post = Post.objects.create(user=user, image=image, caption=caption)
+        new_post.save()
+    return redirect('/')
+
 
