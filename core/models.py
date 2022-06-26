@@ -2,11 +2,8 @@ from datetime import datetime
 import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy
-# from 
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from django.contrib.auth.models import User
 
-# Create your models here.
 # git push github master
 
 
