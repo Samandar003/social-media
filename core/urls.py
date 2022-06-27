@@ -8,7 +8,7 @@ urlpatterns = [
     path('logout', views.logoutPage, name='logout'),
     path('settings', views.accountSettings, name='settings'),
     path('upload', views.upload, name='upload'),
-
+    path('like-post', views.like_post, name='like-post'),
 ]
 
 
