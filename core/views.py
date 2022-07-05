@@ -1,9 +1,11 @@
+from poplib import POP3_SSL_PORT
 from django.shortcuts import redirect, render
 from .models import LikePost, Post, Profile, FollowersCount
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib import auth
 User = get_user_model()
+from itertools import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -14,8 +16,16 @@ from django.contrib.auth import login, logout
 def index(request):
     user_object = User.objects.get(username=request.user.username)
     feed_object = Profile.objects.filter(user=user_object)
-    post_object = Post.objects.all()
-    context = {'posts':post_object}
+    user_following_list = []
+    feed = []
+    user_folliwing = FollowersCount.objects.filter(follower=request.user.username)
+    for user in user_folliwing:
+        user_following_list.append(user)
+    for user in user_following_list:
+        feed_object = Post.objects.filter(user=user)
+        feed.append(feed_object)
+    feed_list = list(chain(*feed))
+    context = {'posts':feed_list,}
     return render(request, 'index.html', context)
 
 
@@ -159,5 +169,5 @@ def follow(request):
             new = FollowersCount.objects.create(follower=follower, user=user)
             new.save()
             return redirect('/profile/'+user)
-            
+
 
