@@ -170,4 +170,22 @@ def follow(request):
             new.save()
             return redirect('/profile/'+user)
 
+@login_required(login_url='signin')
+def search(request):
+    user_object = User.objects.filter(username=request.user.username)[0]
+    user_profile = Profile.objects.filter(user=user_object).first()
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        user_object = User.objects.filter(username__contains=username)
+        user_profile_list = []
+        user_profile_id = []
+        for user in user_object:
+            user_profile_id.append(user.id)
+        for id in user_profile_id:
+            profile = Profile.objects.filter(id_user__contains=id)
+            user_profile_list.append(profile)
+        user_profile_list = list(chain(*user_profile_list))
+    return render(request, 'search.html', {'username_profile_list':user_profile_list, 'user_profile':user_profile})
+
 
