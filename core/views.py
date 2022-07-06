@@ -1,9 +1,9 @@
-from poplib import POP3_SSL_PORT
 from django.shortcuts import redirect, render
 from .models import LikePost, Post, Profile, FollowersCount
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib import auth
+import random
 User = get_user_model()
 from itertools import chain
 from django.contrib import messages
@@ -25,7 +25,30 @@ def index(request):
         feed_object = Post.objects.filter(user=user)
         feed.append(feed_object)
     feed_list = list(chain(*feed))
-    context = {'posts':feed_list,}
+
+    all_users = User.objects.all()
+    user_following_all = []
+
+    for user in user_folliwing:
+        user_object = User.objects.get(username=request.user.username)
+        user_following_all.append(user_object)
+    
+    new_suggestions_list = [x for x in list(all_users) if (x not in list(user_following_all))]
+    current_user = User.objects.filter(username=request.user.username)
+    final_suggestions_list = [x for x in list(new_suggestions_list) if ( x not in list(current_user))]
+    random.shuffle(final_suggestions_list)
+
+    username_id = []
+    username_profile_list = []
+
+    for user in final_suggestions_list:
+        username_id.append(user.id)
+    for id in username_id:
+        profile = Profile.objects.filter(id_user=id)
+        username_profile_list.append(profile)
+    suggetions_username_profile_list = list(chain(*username_profile_list))
+
+    context = {'posts':feed_list, 'suggestions_username_profile_list':suggetions_username_profile_list[:4]}
     return render(request, 'index.html', context)
 
 
