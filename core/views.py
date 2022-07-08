@@ -15,6 +15,7 @@ from django.contrib.auth import login, logout
 @login_required(login_url='signin')
 def index(request):
     user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(user=user_object)
     feed_object = Profile.objects.filter(user=user_object)
     user_following_list = []
     feed = []
@@ -48,7 +49,7 @@ def index(request):
         username_profile_list.append(profile)
     suggetions_username_profile_list = list(chain(*username_profile_list))
 
-    context = {'posts':feed_list, 'suggestions_username_profile_list':suggetions_username_profile_list[:4]}
+    context = {'user_profile':user_profile, 'posts':feed_list, 'suggestions_username_profile_list':suggetions_username_profile_list[:4]}
     return render(request, 'index.html', context)
 
 
